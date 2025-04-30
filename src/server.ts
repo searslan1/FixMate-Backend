@@ -1,12 +1,17 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import router from './index';
 //import { errorHandler } from './middlewares/errorHandler';
+import http from 'http';
+import { startSocketServer } from './websocket/socketServer';
 
-dotenv.config();
+
 
 const app = express();
+const server = http.createServer(app);
+
+startSocketServer(server); // 🔥 WebSocket server başlat
+
 
 // Middlewares
 app.use(cors());
@@ -21,6 +26,6 @@ app.use('/api', router);
 
 // Server Başlat
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`🚀 Server listening on port ${PORT}`);
 });

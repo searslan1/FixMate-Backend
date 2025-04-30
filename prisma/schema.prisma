@@ -23,6 +23,7 @@ model User {
 
   reviewsGiven     Review[] @relation("UserReviews")
   reviewsReceived  Review[] @relation("MechanicReviews")
+notifications Notification[]
 
   chatsSent        Chat[] @relation("SenderChats")
   chatsReceived    Chat[] @relation("ReceiverChats")
@@ -105,16 +106,19 @@ model Offer {
 
 
 model Review {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  mechanicId  Int
-  rating      Int
-  comment     String?
-  createdAt   DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  mechanicId    Int
+  appointmentId Int      @unique
+  rating        Int
+  comment       String?
+  createdAt     DateTime @default(now())
 
-  user        User     @relation("UserReviews", fields: [userId], references: [id])
-  mechanic    User     @relation("MechanicReviews", fields: [mechanicId], references: [id])
+  user          User     @relation("UserReviews", fields: [userId], references: [id])
+  mechanic      User     @relation("MechanicReviews", fields: [mechanicId], references: [id])
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
 }
+
 
 model Chat {
   id          Int      @id @default(autoincrement())
@@ -158,6 +162,8 @@ serviceRequestId Int? @unique
 
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+    reviews Review[]
+
 }
 
 enum AppointmentStatus {
@@ -204,4 +210,14 @@ enum ServiceLocation {
 enum OfferType {
   FIXED
   HOURLY
+}
+model Notification {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  title      String
+  message    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id])
 }
