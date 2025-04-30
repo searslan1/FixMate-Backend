@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🚘 FixMate Backend
 
 AI destekli mobil oto servis platformu:  
