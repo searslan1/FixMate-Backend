@@ -1,0 +1,163 @@
+openapi: 3.0.0
+info:
+  title: FixMate API
+  version: 1.0.0
+  description: AI destekli mobil araç servis platformu için backend API dökümantasyonu
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Vehicle:
+      type: object
+      properties:
+        brand:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        plate:
+          type: string
+
+    ServiceRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        location:
+          type: string
+        urgency:
+          type: string
+          enum: [NORMAL, URGENT, PLANNED]
+        serviceLocation:
+          type: string
+          enum: [GARAGE, ON_SITE]
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Yeni kullanıcı kaydı
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [CUSTOMER, MECHANIC]
+      responses:
+        '201':
+          description: Başarılı kayıt
+        '400':
+          description: Geçersiz bilgi
+
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Kullanıcı girişi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Giriş başarılı
+        '401':
+          description: Hatalı giriş
+
+  /api/vehicles:
+    get:
+      tags:
+        - Vehicles
+      summary: Kendi araçlarını listele
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Araç listesi
+    post:
+      tags:
+        - Vehicles
+      summary: Yeni araç ekle
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+      responses:
+        '201':
+          description: Araç eklendi
+
+  /api/service-requests:
+    post:
+      tags:
+        - Service Requests
+      summary: Yeni iş talebi oluştur
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceRequest'
+      responses:
+        '201':
+          description: Talep oluşturuldu
+
+  /api/offers:
+    post:
+      tags:
+        - Offers
+      summary: Teklif gönder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serviceRequestId:
+                  type: integer
+                price:
+                  type: number
+                date:
+                  type: string
+                time:
+                  type: string
+      responses:
+        '201':
+          description: Teklif kaydedildi

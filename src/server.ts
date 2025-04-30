@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import router from './index';
-//import { errorHandler } from './middlewares/errorHandler';
+import { errorHandler } from './middlewares/errorHandler';
 import http from 'http';
 import { startSocketServer } from './websocket/socketServer';
 
@@ -21,8 +21,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api', router);
 
-// Global Error Handler
-//app.use(errorHandler);
+//Global Error Handler
+app.use(errorHandler);
 
 // Server Başlat
 const PORT = process.env.PORT || 5000;
