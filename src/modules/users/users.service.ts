@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, UserRole } from '@prisma/client';
 import { hashPassword, comparePasswords } from '../../utils/password';
 
 const prisma = new PrismaClient();
@@ -6,44 +6,59 @@ const prisma = new PrismaClient();
 export class UserService {
   // Kullanıcının kendi bilgilerini getirme
   async getMe(userId: number) {
-    const user = await prisma.user.findUnique({
+    return await prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
-        email: true,
         name: true,
+        email: true,
         phone: true,
+        address: true,
+        workplace: true,
+        services: true,
+        brands: true,
+        photos: true,
         role: true,
         createdAt: true,
       },
     });
-
-    if (!user) {
-      throw new Error('Kullanıcı bulunamadı.');
-    }
-
-    return user;
   }
 
-  // Kullanıcının bilgilerini güncelleme
-  async updateMe(userId: number, data: { name?: string; phone?: string }) {
-    const user = await prisma.user.update({
+  async updateProfile(userId: number, role: UserRole, data: any) {
+    const updateData: any = {};
+
+    // Her rol için ortak alanlar
+    if (data.name) updateData.name = data.name;
+    if (data.phone) updateData.phone = data.phone;
+
+    if (role === 'CUSTOMER') {
+      if (data.address) updateData.address = data.address;
+    }
+
+    if (role === 'MECHANIC') {
+      if (data.workplace) updateData.workplace = data.workplace;
+      if (data.services) updateData.services = data.services;
+      if (data.brands) updateData.brands = data.brands;
+      if (data.photos) updateData.photos = data.photos;
+    }
+
+    const updated = await prisma.user.update({
       where: { id: userId },
-      data: {
-        name: data.name,
-        phone: data.phone,
-      },
+      data: updateData,
       select: {
         id: true,
-        email: true,
         name: true,
         phone: true,
-        role: true,
-        createdAt: true,
+        address: true,
+        workplace: true,
+        services: true,
+        brands: true,
+        photos: true,
+        updatedAt: true,
       },
     });
 
-    return user;
+    return updated;
   }
 
   // Kullanıcının şifresini değiştirme

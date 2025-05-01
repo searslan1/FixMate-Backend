@@ -123,5 +123,23 @@ async updateVehicle(userId: number, vehicleId: number, data: { brand?: string; m
   
     return updatedVehicle;
   }
+  async getVehicleServiceHistory(vehicleId: number, userId: number) {
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { id: vehicleId },
+    });
+  
+    if (!vehicle) throw new Error('Araç bulunamadı.');
+    if (vehicle.userId !== userId) throw new Error('Bu araca erişim yetkiniz yok.');
+  
+    const appointments = await prisma.appointment.findMany({
+      where: { vehicleId },
+      include: {
+        serviceLog: true, // 🔥 ilişkili servis kaydı
+      },
+      orderBy: { date: 'desc' },
+    });
+  
+    return appointments.filter(a => a.serviceLog); // sadece servis girilmiş kayıtlar döner
+  }
   
 }

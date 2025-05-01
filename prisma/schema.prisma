@@ -16,6 +16,11 @@ model User {
   phone       String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  address     String?  // Müşteri için
+  workplace   String?  // Usta için: işyeri adı
+  services    String[] // Usta için: sunulan hizmetler
+  brands      String[] // Usta için: çalıştığı markalar
+  photos      String[] // Usta için: işyeri fotoğraf URL'leri
 
   vehicles         Vehicle[]
   serviceRequests  ServiceRequest[]
@@ -163,6 +168,8 @@ serviceRequestId Int? @unique
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
     reviews Review[]
+    serviceLog ServiceLog?
+
 
 }
 
@@ -218,6 +225,29 @@ model Notification {
   message    String
   isRead     Boolean  @default(false)
   createdAt  DateTime @default(now())
+    type      NotificationType
+
 
   user       User     @relation(fields: [userId], references: [id])
+}
+model ServiceLog {
+  id             Int       @id @default(autoincrement())
+  appointmentId  Int       @unique // Her randevu için sadece 1 servis kaydı olabilir
+
+  date           DateTime  // İşlem tarihi
+  mileage        Int       // KM bilgisi
+  type           String    // İşlem tipi (ör: "Fren bakımı")
+  description    String    // Detaylı açıklama
+  notes          String?   // Opsiyonel usta notları
+  partsUsed      Json      // [{ name: "Yağ filtresi", price: 200 }]
+
+  createdAt      DateTime  @default(now())
+
+  appointment    Appointment @relation(fields: [appointmentId], references: [id])
+  appointmentId Int @unique
+}
+enum NotificationType {
+  SERVICE_COMPLETED
+  APPOINTMENT_UPDATED
+  OFFER_RECEIVED
 }

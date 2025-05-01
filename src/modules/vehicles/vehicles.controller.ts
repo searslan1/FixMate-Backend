@@ -20,6 +20,22 @@ export const createVehicle = async (req: Request, res: Response, next: NextFunct
     next(error);
   }
 };
+export const getVehicleHistory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user.id;
+    const vehicleId = Number(req.params.id);
+
+    const history = await vehicleService.getVehicleServiceHistory(vehicleId, userId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Servis geçmişi başarıyla getirildi',
+      data: history,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // Kendi araçlarını listeleme
 export const getMyVehicles = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

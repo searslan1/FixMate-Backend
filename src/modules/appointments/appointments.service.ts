@@ -137,13 +137,33 @@ export class AppointmentService {
   }
 
   // Usta randevu statüsünü günceller
-  async updateAppointmentStatus(mechanicId: number, appointmentId: number, status: AppointmentStatus) {
+  async updateAppointmentStatus(
+    mechanicId: number,
+    appointmentId: number,
+    status: AppointmentStatus
+  ) {
     const valid = ['IN_PROGRESS', 'COMPLETED'];
     if (!valid.includes(status)) throw new Error('Geçersiz durum');
 
-    const appointment = await prisma.appointment.findUnique({ where: { id: appointmentId } });
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+    });
+
     if (!appointment) throw new Error('Randevu bulunamadı');
     if (appointment.mechanicId !== mechanicId) throw new Error('Yetkisiz erişim');
+
+    // ✅ Eğer "COMPLETED" yapılmak isteniyorsa → servis kaydı kontrolü yap
+    if (status === 'COMPLETED') {
+      const serviceLog = await prisma.serviceLog.findUnique({
+        where: {
+          appointmentId: appointment.id,
+        },
+      });
+
+      if (!serviceLog) {
+        throw new Error('Servis kaydı olmadan randevu tamamlanamaz');
+      }
+    }
 
     const updated = await prisma.appointment.update({
       where: { id: appointmentId },

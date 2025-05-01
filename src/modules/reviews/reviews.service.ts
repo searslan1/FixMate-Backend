@@ -12,29 +12,27 @@ export class ReviewService {
   // Yorum oluştur
   async createReview(userId: number, input: CreateReviewInput) {
     const { appointmentId, rating, comment } = input;
-
+  
     if (!rating || rating < 1 || rating > 5) {
       throw new Error('Puan 1 ile 5 arasında olmalıdır');
     }
-
-    // Randevu kontrolü
+  
     const appointment = await prisma.appointment.findUnique({
       where: { id: appointmentId },
     });
-
-    if (!appointment) {
-      throw new Error('Randevu bulunamadı');
+  
+    if (!appointment) throw new Error('Randevu bulunamadı');
+    if (appointment.customerId !== userId) throw new Error('Bu randevu size ait değil');
+    if (appointment.status !== 'COMPLETED') throw new Error('Sadece tamamlanan randevulara yorum yapılabilir');
+  
+    // ✅ Yeni kontrol
+    const serviceLog = await prisma.serviceLog.findUnique({
+      where: { appointmentId: appointment.id },
+    });
+    if (!serviceLog) {
+      throw new Error('Bu randevu için servis kaydı bulunmadan yorum yapılamaz');
     }
-
-    if (appointment.customerId !== userId) {
-      throw new Error('Bu randevu size ait değil');
-    }
-
-    if (appointment.status !== 'COMPLETED') {
-      throw new Error('Sadece tamamlanan randevulara yorum yapılabilir');
-    }
-
-    // Daha önce yorum yapılmış mı?
+  
     const existing = await prisma.review.findFirst({
       where: {
         userId,
@@ -42,11 +40,11 @@ export class ReviewService {
         appointmentId: appointment.id,
       },
     });
-
+  
     if (existing) {
       throw new Error('Bu randevuya zaten yorum yapılmış');
     }
-
+  
     const review = await prisma.review.create({
       data: {
         userId,
@@ -62,9 +60,10 @@ export class ReviewService {
         createdAt: true,
       },
     });
-
+  
     return review;
   }
+  
 
   // Kullanıcının kendi yorumları
   async getMyReviews(userId: number) {

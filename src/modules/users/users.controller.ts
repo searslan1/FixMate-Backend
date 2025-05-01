@@ -21,17 +21,17 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
 };
 
 // Kullanıcının profilini güncelleme
-export const updateMe = async (req: Request, res: Response, next: NextFunction) => {
+export const updateUserProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user.id;
-    const updateData = req.body;
+    const role = (req as any).user.role;
 
-    const updatedUser = await userService.updateMe(userId, updateData);
+    const updated = await userService.updateProfile(userId, role, req.body);
 
     res.status(200).json({
       success: true,
-      message: 'Kullanıcı bilgileri güncellendi',
-      data: updatedUser,
+      message: 'Profil güncellendi',
+      data: updated,
     });
   } catch (error) {
     next(error);
@@ -54,3 +54,4 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+

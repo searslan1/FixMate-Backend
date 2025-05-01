@@ -8,7 +8,7 @@ import appointmentRoutes from './modules/appointments/appointments.routes';
 import notificationRoutes from './modules/notification/notification.routes';
 import reviewRoutes from './modules/reviews/reviews.routes';
 import chatRoutes from './modules/chats/chats.routes';
-
+import serviceLogsRoutes from './modules/serviceLogs/serviceLogs.routes';
 const router = Router();
 
 router.use('/auth', authRoutes);
@@ -20,5 +20,6 @@ router.use('/appointments', appointmentRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/reviews', reviewRoutes);
 router.use('/chats', chatRoutes);
+router.use('/serviceLogs', serviceLogsRoutes); // Assuming serviceLogs routes are similar to serviceRequests
 
 export default router;
