@@ -1,16 +1,17 @@
-import { PrismaClient } from '@prisma/client';
+import { NotificationType, PrismaClient } from '@prisma/client';
 import { sendNotificationToUser } from '../../websocket/socketServer';
 
 const prisma = new PrismaClient();
 
 export class NotificationService {
   // Bildirim oluştur + gönder
-  async createAndSend(userId: number, title: string, message: string) {
+  async createAndSend(userId: number, title: string, message: string, type: NotificationType) {
     const notification = await prisma.notification.create({
       data: {
         userId,
         title,
         message,
+        type,
       },
     });
 
@@ -20,6 +21,7 @@ export class NotificationService {
       message: notification.message,
       createdAt: notification.createdAt,
       isRead: notification.isRead,
+      type: notification.type,
     });
 
     return notification;

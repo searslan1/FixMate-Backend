@@ -13,7 +13,7 @@ model User {
   password    String
   name        String?
   role        UserRole  @default(CUSTOMER)
-  phone       String?
+  phone       String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   address     String?  // Müşteri için
@@ -226,26 +226,24 @@ model Notification {
   isRead     Boolean  @default(false)
   createdAt  DateTime @default(now())
     type      NotificationType
+    read      Boolean  @default(false)
 
 
   user       User     @relation(fields: [userId], references: [id])
 }
 model ServiceLog {
-  id             Int       @id @default(autoincrement())
-  appointmentId  Int       @unique // Her randevu için sadece 1 servis kaydı olabilir
-
-  date           DateTime  // İşlem tarihi
-  mileage        Int       // KM bilgisi
-  type           String    // İşlem tipi (ör: "Fren bakımı")
-  description    String    // Detaylı açıklama
-  notes          String?   // Opsiyonel usta notları
-  partsUsed      Json      // [{ name: "Yağ filtresi", price: 200 }]
-
-  createdAt      DateTime  @default(now())
-
+  id             Int         @id @default(autoincrement())
+  appointmentId  Int         @unique
   appointment    Appointment @relation(fields: [appointmentId], references: [id])
-  appointmentId Int @unique
+  date           DateTime
+  mileage        Int
+  type           String
+  description    String
+  notes          String?
+partsUsed Json @default("[]")
+  createdAt      DateTime    @default(now())
 }
+
 enum NotificationType {
   SERVICE_COMPLETED
   APPOINTMENT_UPDATED
