@@ -2,7 +2,7 @@
   "name": "fixmate-backend",
   "version": "1.0.0",
   "description": "FixMate Projesi - Backend",
-  "main": "/server.ts",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "prisma generate && tsc",
